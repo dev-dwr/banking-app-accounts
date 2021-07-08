@@ -1,23 +1,13 @@
 
-
 spring:
   application:
     name: accounts
   profiles:
     active: production
 
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-  datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/db
-    username: root
-    password: Mamaitata1
-
 info:
   app:
-    name: "Cards"
+    name: "Accounts"
     version: "0.0.1"
     profile: ${spring.profiles.active}
   serverInfo:
