@@ -1,12 +1,33 @@
+import org.springframework.cloud.contract.verifier.config.TestFramework
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath 'org.springframework.cloud:spring-cloud-contract-gradle-plugin:2.2.3.RELEASE'
+    }
+}
+
+
+
 plugins {
     id 'org.springframework.boot' version '2.3.10.RELEASE'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
 
+
+
 group = 'com'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+
+apply plugin: 'spring-cloud-contract'
+apply plugin: 'maven-publish'
+
 
 configurations {
     compileOnly {
@@ -16,6 +37,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 ext {
@@ -32,6 +54,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     compileOnly 'org.projectlombok:lombok'
@@ -40,6 +64,11 @@ dependencies {
 
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
+    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    implementation 'junit:junit:4.12'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
+    testImplementation 'com.h2database:h2:1.4.200'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -50,7 +79,21 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
+contracts {
+    testFramework = TestFramework.JUNIT5
+    packageWithBaseClasses = 'com.accounts'
+}
 
 test {
     useJUnitPlatform()
 }
+
+
+task stubsJar(type: Jar) {
+    classifier = "stubs"
+    into("META-INF/${project.group}/${project.name}/${project.version}/mappings") {
+        include('**/*.*')
+        from("${project.buildDir}/generated-snippets/stubs")
+    }
+}
+
